@@ -164,11 +164,16 @@ function initCarousel() {
 }
 
 function updateCarousel() {
-    const items = document.querySelectorAll('.carousel-item');
+    const items = Array.from(document.querySelectorAll('.carousel-item'));
     const indicators = document.querySelectorAll('.indicator');
     const totalItems = items.length;
-    const isMobile = window.innerWidth <= 768;
-    const isTablet = window.innerWidth <= 1024;
+
+    const viewportWidth = window.innerWidth;
+    const mode = viewportWidth <= 768 ? 'mobile' : (viewportWidth <= 1024 ? 'tablet' : 'desktop');
+
+    const itemWidth = items[0]?.getBoundingClientRect().width || 320;
+    const spacing1 = Math.round(Math.min(420, Math.max(160, itemWidth * 0.95)));
+    const spacing2 = Math.round(spacing1 * 1.45);
 
     items.forEach((item, index) => {
         // Calculate relative position
@@ -184,62 +189,56 @@ function updateCarousel() {
         const absOffset = Math.abs(offset);
         const sign = offset < 0 ? -1 : 1;
 
-        // Reset transform
-        item.style.transform = '';
-        item.style.opacity = '';
-        item.style.zIndex = '';
         item.style.transition = 'all 0.8s cubic-bezier(0.4, 0.0, 0.2, 1)';
-
-        // Adjust spacing based on screen size
-        let spacing1 = 400;
-        let spacing2 = 600;
-        let spacing3 = 750;
-
-        if (isMobile) {
-            spacing1 = 280;  // Was 400, now 100px closer
-            spacing2 = 420;  // Was 600, now 180px closer
-            spacing3 = 550;  // Was 750, now 200px closer
-        } else if (isTablet) {
-            spacing1 = 340;
-            spacing2 = 520;
-            spacing3 = 650;
-        }
+        item.style.pointerEvents = absOffset === 0 ? 'auto' : 'none';
 
         if (absOffset === 0) {
             // Center item
             item.style.transform = 'translate(-50%, -50%) translateZ(0) scale(1)';
             item.style.opacity = '1';
             item.style.zIndex = '10';
-        } else if (absOffset === 1) {
-            // Side items
-            const translateX = sign * spacing1;
-            const rotation = isMobile ? 25 : 30;
-            const scale = isMobile ? 0.88 : 0.85;
-            item.style.transform = `translate(-50%, -50%) translateX(${translateX}px) translateZ(-200px) rotateY(${-sign * rotation}deg) scale(${scale})`;
-            item.style.opacity = '0.8';
-            item.style.zIndex = '5';
-        } else if (absOffset === 2) {
-            // Further side items
-            const translateX = sign * spacing2;
-            const rotation = isMobile ? 35 : 40;
-            const scale = isMobile ? 0.75 : 0.7;
-            item.style.transform = `translate(-50%, -50%) translateX(${translateX}px) translateZ(-350px) rotateY(${-sign * rotation}deg) scale(${scale})`;
-            item.style.opacity = '0.5';
-            item.style.zIndex = '3';
-        } else if (absOffset === 3) {
-            // Even further items
-            const translateX = sign * spacing3;
-            const rotation = isMobile ? 40 : 45;
-            const scale = isMobile ? 0.65 : 0.6;
-            item.style.transform = `translate(-50%, -50%) translateX(${translateX}px) translateZ(-450px) rotateY(${-sign * rotation}deg) scale(${scale})`;
-            item.style.opacity = '0.3';
-            item.style.zIndex = '2';
-        } else {
-            // Hidden items (behind)
+            return;
+        }
+
+        // Mobile: keep only the centered card (everything else hidden)
+        if (mode === 'mobile') {
             item.style.transform = 'translate(-50%, -50%) translateZ(-500px) scale(0.5)';
             item.style.opacity = '0';
             item.style.zIndex = '1';
+            return;
         }
+
+        if (absOffset === 1) {
+            const translateX = sign * spacing1;
+            const rotation = mode === 'tablet' ? 26 : 30;
+            const translateZ = mode === 'tablet' ? -260 : -200;
+            const scale = mode === 'tablet' ? 0.82 : 0.85;
+            item.style.transform = `translate(-50%, -50%) translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${-sign * rotation}deg) scale(${scale})`;
+            item.style.opacity = '0.75';
+            item.style.zIndex = '5';
+            return;
+        }
+
+        // Tablet: don’t show deeper layers
+        if (mode === 'tablet') {
+            item.style.transform = 'translate(-50%, -50%) translateZ(-500px) scale(0.5)';
+            item.style.opacity = '0';
+            item.style.zIndex = '1';
+            return;
+        }
+
+        if (absOffset === 2) {
+            const translateX = sign * spacing2;
+            item.style.transform = `translate(-50%, -50%) translateX(${translateX}px) translateZ(-350px) rotateY(${-sign * 40}deg) scale(0.7)`;
+            item.style.opacity = '0.5';
+            item.style.zIndex = '3';
+            return;
+        }
+
+        // Hidden items (behind)
+        item.style.transform = 'translate(-50%, -50%) translateZ(-500px) scale(0.5)';
+        item.style.opacity = '0';
+        item.style.zIndex = '1';
     });
 
     // Update indicators
