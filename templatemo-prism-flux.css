@@ -146,11 +146,15 @@ body::after {
 	top: 0;
 	left: 0;
 	width: 100%;
-	height: 100vh;
+	height: 100svh;
+	min-height: 100vh;
 	background: var(--primary-black);
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	padding: 24px;
+	padding-top: max(24px, env(safe-area-inset-top));
+	padding-bottom: max(24px, env(safe-area-inset-bottom));
 	z-index: 10000;
 	transition: opacity 0.5s, visibility 0.5s;
 }
@@ -162,20 +166,22 @@ body::after {
 
 .loader-content {
 	text-align: center;
+	width: min(360px, 90vw);
 }
 
 .loader-prism {
-	width: 100px;
-	height: 100px;
+	--loader-size: clamp(64px, 18vw, 110px);
+	width: var(--loader-size);
+	height: var(--loader-size);
 	position: relative;
-	margin: 0 auto 30px;
+	margin: 0 auto clamp(18px, 4vw, 30px);
 }
 
 .prism-face {
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	border: 2px solid transparent;
+	border: clamp(1px, 0.4vw, 2px) solid transparent;
 	transform-origin: center;
 	animation: prismRotate 3s linear infinite;
 }
