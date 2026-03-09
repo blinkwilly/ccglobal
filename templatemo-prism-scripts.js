@@ -33,7 +33,7 @@ const portfolioData = [
         id: 5,
         title: 'EBTC',
         description: 'Easter Believers conference is coming up on the 2nd to 5th of April, 2026!',
-        image: 'images/ebtc.jpeg',
+        image: 'images/ebtc.png',
         tech: ['Apache Spark', 'Hadoop', 'Kafka']
     },
 
